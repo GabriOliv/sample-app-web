@@ -1,0 +1,44 @@
+name: Build to GitHub Pages branch
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Enables manual triggering
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build site
+        env:
+          CI: false
+        run: |
+          ls
+          npm ci
+          npm run build
+
+      - name: Build storybook
+        env:
+          CI: false
+        run: |
+          ls
+          npm run build.storybook
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./build
